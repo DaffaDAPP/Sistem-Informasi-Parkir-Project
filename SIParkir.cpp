@@ -73,11 +73,14 @@ void login(){
     cout<<"Password\t: ";
     cin>>pass;
     for (int i = 0; i < 100; i++){
-        if (akun[i].username == user){
+        if (akun[i].username == user && akun[i].password == pass){
             cout<<"|L O G I N  S U C C E S S|\n";
             log = true;
             system("pause");main();
-        }       
+        }else{
+            cout<<"|L O G I N  F A I L E D|\n";
+            system("pause");login();
+        }
     }
 }
 
@@ -112,7 +115,7 @@ void exit(){
 
 void sistemP(){
     int pil;
-
+    system("cls");
     cout<<"\t\t===SYSTEM INFORMATION PARKING==\n1) Slot Information\n2) Vehicle Enters\n3) Vehicle Exits\n4) Log Out\n\nOption\t: ";
     cin>>pil;
     switch (pil){
@@ -173,6 +176,9 @@ void masuk(kendaraan k[], int jK, karcis t[], int s[]){
     }
     system("pause"); system("cls");
     cout<<"\t\t===TICKET===";
+    cout<<"\nType\t: "<<k[jK].jenis;
+    cout<<"\nNumber Plate\t: "<<k[jK].plat;
+    cout<<"\nFloor\t: "<<k[jK].lantai;
     cout<<"\nEntry Time\t: "<<t[jK].jamM<<":"<<t[jK].menitM<<"\n";
     system("pause"); sistemP();
 }
@@ -180,6 +186,7 @@ void masuk(kendaraan k[], int jK, karcis t[], int s[]){
 void keluar(kendaraan k[], int jK, karcis t[], int l[], int s[]){
     bool exit = false;
     string plat;
+    system("cls");
     cout<<"\t\t===VEHICLE EXITS===\nNumber Plate\t: ";
     cin>>plat;
     for(int i = 0; i < jK; i++){
@@ -195,14 +202,10 @@ void keluar(kendaraan k[], int jK, karcis t[], int l[], int s[]){
             int durasiMenit = totalMenitK - totalMenitM;
             durasiJam = durasiMenit / 60;
 
-            for(int j = i; j < jK; j++){
-                k[j] = k[j + 1];
-                t[j] = t[j + 1];
-            }
+    cout<<"\n|S U C C E S S|";
     exit = true;
 
             if(exit == true){
-                cout<<"\n|S U C C E S S|";
                 system("pause"); system("cls");
                 cout<<"\t\t===PARKING NOTE===\n";
                 for(int i = 0; i < jK; i++){
@@ -213,15 +216,20 @@ void keluar(kendaraan k[], int jK, karcis t[], int l[], int s[]){
                     }
                 }
             }
+            for(int j = i; j < jK; j++){
+                k[j] = k[j + 1];
+                t[j] = t[j + 1];
+            }
         }
     }
+    jK++;
     jmlKendaraan++;
     system("pause"); system("cls"); main();
 }
 
 int harga(int d, string j){
     if(d < 1){
-        return 0;
+        return d;
     }else{
         if(j == "Motor" || j == "motor" || j == "MOTOR"){
             return 2000 + harga(d-1, j);
