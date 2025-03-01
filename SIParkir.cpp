@@ -11,12 +11,13 @@ struct karcis{
     int jamM, jamK;
     int menitM, menitK;
     int harga;
+    int nomor;
 }tiket[150];
         
 struct kendaraan{
     string jenis;
-    string plat;
-    int lantai;
+    string platAwal, platAkhir;
+    int lantai, platNomor, exit = 0;
 }vehicle[150];
 
 struct tempat{
@@ -26,7 +27,7 @@ struct tempat{
 
 const int maxAcc = 100;
 admin akun[maxAcc];
-int jmlAcc = 0, jmlTiket = 0, jmlKendaraan = 0;
+int jmlAcc = 0, jmlKendaraan = 0;
 int durasiJam = 0;
 bool log = false;
 
@@ -34,7 +35,7 @@ void mainMenu(); void login(); void regist(); void exit(); void sistemP();
 void slotInfo(int l[], int s[]);
 void masuk(kendaraan k[], int jK, karcis t[], int s[]);
 void keluar(kendaraan k[], int jK, karcis t[], int l[], int s[]);
-void ticket(); int harga(int d, string j);
+void ticket(); int harga(int d, string j);void dataTicket();
 
 main(){
     if(log == false){
@@ -79,7 +80,7 @@ void login(){
             system("pause");main();
         }else{
             cout<<"|L O G I N  F A I L E D|\n";
-            system("pause");login();
+            system("pause");main();
         }
     }
 }
@@ -116,7 +117,7 @@ void exit(){
 void sistemP(){
     int pil;
     system("cls");
-    cout<<"\t\t===SYSTEM INFORMATION PARKING==\n1) Slot Information\n2) Vehicle Enters\n3) Vehicle Exits\n4) Log Out\n\nOption\t: ";
+    cout<<"\t\t===SYSTEM INFORMATION PARKING==\n1) Slot Information\n2) Vehicle Enters\n3) Vehicle Exits\n4) Data Tickets\n5) Log Out\n\nOption\t: ";
     cin>>pil;
     switch (pil){
     case 1:
@@ -129,6 +130,9 @@ void sistemP(){
         keluar(vehicle, jmlKendaraan, tiket, parkir.lantai, parkir.slot);
         break;
     case 4:
+        dataTicket();
+        break;
+    case 5:
         log = false;
         main();
         break;
@@ -162,12 +166,13 @@ void masuk(kendaraan k[], int jK, karcis t[], int s[]){
     if(jmlKendaraan < 150){
         cout<<"\nType\t: ";
         cin>>k[jK].jenis;
-        cout<<"Number Plate\t: ";
-        cin>>k[jK].plat;
+        cout<<"Number Plate (XX 1234 XX)\t: ";
+        cin>>k[jK].platAwal>>k[jK].platNomor>>k[jK].platAkhir;
         cout<<"Select Floor\t: ";
         cin>>k[jK].lantai;
         cout<<"Hours & Minutes\t: ";
         cin>>t[jK].jamM>>t[jK].menitM;
+        t[jK].nomor = jK + 1;
         jmlKendaraan++;
         s[k[jK].lantai-1]--;
         cout<<"\t\t|S U C C E S S|";
@@ -177,7 +182,7 @@ void masuk(kendaraan k[], int jK, karcis t[], int s[]){
     system("pause"); system("cls");
     cout<<"\t\t===TICKET===";
     cout<<"\nType\t: "<<k[jK].jenis;
-    cout<<"\nNumber Plate\t: "<<k[jK].plat;
+    cout<<"\nNumber Plate\t: "<<k[jK].platAwal<<" "<<k[jK].platNomor<<" "<<k[jK].platAkhir;
     cout<<"\nFloor\t: "<<k[jK].lantai;
     cout<<"\nEntry Time\t: "<<t[jK].jamM<<":"<<t[jK].menitM<<"\n";
     system("pause"); sistemP();
@@ -185,12 +190,13 @@ void masuk(kendaraan k[], int jK, karcis t[], int s[]){
 
 void keluar(kendaraan k[], int jK, karcis t[], int l[], int s[]){
     bool exit = false;
-    string plat;
+    string platAwal, platAkhir;
+    int platNomor;
     system("cls");
     cout<<"\t\t===VEHICLE EXITS===\nNumber Plate\t: ";
-    cin>>plat;
+    cin>>platAwal>>platNomor>>platAkhir;
     for(int i = 0; i < jK; i++){
-        if(k[i].plat == plat){
+        if(k[i].platAwal == platAwal && k[i].platNomor == platNomor && k[i].platAkhir == platAkhir){
             cout<<"Exit(Hours & Minutes)\t: ";
             cin>>t[i].jamK>>t[i].menitK;
 
@@ -201,6 +207,7 @@ void keluar(kendaraan k[], int jK, karcis t[], int l[], int s[]){
             }
             int durasiMenit = totalMenitK - totalMenitM;
             durasiJam = durasiMenit / 60;
+            t[i].harga = harga(durasiJam, k[i].jenis);
 
     cout<<"\n|S U C C E S S|";
     exit = true;
@@ -209,9 +216,10 @@ void keluar(kendaraan k[], int jK, karcis t[], int l[], int s[]){
                 system("pause"); system("cls");
                 cout<<"\t\t===PARKING NOTE===\n";
                 for(int i = 0; i < jK; i++){
-                    if(k[i].plat == plat){
+                    if(k[i].platAwal == platAwal && k[i].platNomor == platNomor && k[i].platAkhir == platAkhir){
                         string jenis = k[i].jenis;
-                        cout<<"Type\t: "<<k[i].jenis<<"\nNumber Plate\t: "<<k[i].plat<<"\nEntry Time\t: "<<t[i].jamM<<":"<<t[i].menitM<<"\nExit Time\t: "<<t[i].jamK<<":"<<t[i].menitK<<"\nPrice\t: "<<harga(durasiJam, jenis);
+                        cout<<"Type\t: "<<k[i].jenis<<"\nNumber Plate\t: "<<k[i].platAwal<<k[i].platNomor<<k[i].platAkhir<<"\nEntry Time\t: "<<t[i].jamM<<":"<<t[i].menitM<<"\nExit Time\t: "<<t[i].jamK<<":"<<t[i].menitK<<"\nPrice\t: "<<harga(durasiJam, jenis);
+                        t[i].harga = harga(durasiJam, jenis);
                         s[k[i].lantai-1]--;
                     }
                 }
@@ -223,7 +231,6 @@ void keluar(kendaraan k[], int jK, karcis t[], int l[], int s[]){
         }
     }
     jK++;
-    jmlKendaraan++;
     system("pause"); system("cls"); main();
 }
 
@@ -238,5 +245,87 @@ int harga(int d, string j){
         }else{
             return 10000 + harga(d-1, j);
         }
+    }
+}
+
+void dataTicket(){
+    system("cls");
+    int i = 0, tempNomor;
+    string tempAwal, tempAkhir;
+    bool found = false;
+    int pil;
+    cout<<"==DATA TICKETS==\n1) All Tickets Information\n2) Odd Plate\n3) Even Plate\n4) Search Plate\n5) Exit";
+    cout<<"\nOption\t: ";
+    cin>>pil;
+    switch (pil){
+    case 1:
+        cout<<"==ALL TICKETS INFORMATION==";
+        for (int i = 0; i < jmlKendaraan; i++)
+        {
+            cout<<"\nNO\t: "<<tiket[i].nomor;
+            cout<<"\nType\t: "<<vehicle[i].jenis;
+            cout<<"\nNumber Plate\t: "<<vehicle[i].platAwal<<vehicle[i].platNomor<<vehicle[i].platAkhir;
+            cout<<"\nFloor\t: "<<vehicle[i].lantai;
+            cout<<"\nEntry Time\t: "<<tiket[i].jamM<<":"<<tiket[i].menitM<<"\n";
+            cout<<"\nExit Time\t: "<<tiket[i].jamK<<":"<<tiket[i].menitK<<"\nPrice\t: "<<tiket[i].harga;
+        }
+        system("pause"); dataTicket();
+        break;
+    case 2:
+        system("cls");
+        cout<<"==ODD PLATE==\n";
+        for (int i = 0; i < jmlKendaraan; i++)
+        {
+            if(vehicle[i].platNomor %2 == 1 ){
+                cout<<vehicle[i].platAwal<<vehicle[i].platNomor<<vehicle[i].platAkhir<<"\t";
+                if(i % 3 == 0) cout<<endl;
+            }
+        }
+        system("pause");dataTicket();
+        break;
+    case 3:
+        system("cls");
+        cout<<"==EVEN PLATE==\n";
+        for (int i = 0; i < jmlKendaraan; i++)
+        {
+            if(vehicle[i].platNomor %2 == 0 ){
+                cout<<vehicle[i].platAwal<<" "<<vehicle[i].platNomor<<" "<<vehicle[i].platAkhir<<"\t";
+                if(i % 3 == 0) cout<<endl;
+            }
+        }
+        system("pause");dataTicket();
+        break;
+    case 4:
+        system("cls");
+        cout<<"==SEARCH PLATE==\nNumber Plate\t: ";
+        cin>>tempAwal>>tempNomor>>tempAkhir;
+        while (i < jmlKendaraan && !found)
+        {
+            if(vehicle[i].platAwal == tempAwal && vehicle[i].platNomor == tempNomor && vehicle[i].platAkhir == tempAkhir){
+                found = true;
+            }else{
+                i++;
+            }
+        }
+        if(found){
+            cout<<"\nNO\t: "<<tiket[i].nomor;
+            cout<<"\nType\t: "<<vehicle[i].jenis;
+            cout<<"\nNumber Plate\t: "<<vehicle[i].platAwal<<vehicle[i].platNomor<<vehicle[i].platAkhir;
+            cout<<"\nFloor\t: "<<vehicle[i].lantai;
+            cout<<"\nEntry Time\t: "<<tiket[i].jamM<<":"<<tiket[i].menitM<<"\n";
+            cout<<"\nExit Time\t: "<<tiket[i].jamK<<":"<<tiket[i].menitK<<"\nPrice\t: "<<tiket[i].harga;
+            i = 0;
+            system("pause");dataTicket();
+        }else{
+            i = 0;
+            cout<<"|P L A T E  N O T  F O U N D ! !|";
+            system("pause");dataTicket();
+        }
+        break;
+    case 5:
+        sistemP();
+        break;
+    default:
+        break;
     }
 }
